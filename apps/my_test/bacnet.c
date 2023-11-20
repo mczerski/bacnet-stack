@@ -88,14 +88,14 @@ void binary_output_callback(
 {
 }
 
-void bacnet_init(void)
+void bacnet_init(const char* ifname)
 {
     int i = 0;
     dlmstp_set_mac_address(1);
-    dlmstp_set_max_master(1);
+    dlmstp_set_max_master(3);
+    dlmstp_set_max_info_frames(1);
     /* initialize datalink layer */
-    //dlmstp_init("/tmp/ttyS0.0");
-    dlmstp_init("/dev/ttyUSB0");
+    dlmstp_init(ifname);
     handler_cov_init();
     /* initialize objects */
     Device_Init(My_Object_Table);
