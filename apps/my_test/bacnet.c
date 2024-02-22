@@ -17,6 +17,7 @@
 #include "bacnet/basic/object/bi.h"
 #include "bacnet/basic/object/bo.h"
 #include "bacnet/basic/object/ai.h"
+#include "bacnet/basic/object/ao.h"
 #include "bacnet/basic/object/bacfile.h"
 /* me */
 #include "bacnet.h"
@@ -25,7 +26,6 @@
 /* timer for device communications control */
 static struct mstimer BACnet_Task_Timer;
 static struct mstimer BACnet_TSM_Timer;
-#define MAX_BINARY_OUTPUTS 2
 
 static object_functions_t My_Object_Table[] = {
     { OBJECT_DEVICE, NULL /* Init - don't init Device or it will recourse! */,
@@ -64,6 +64,15 @@ static object_functions_t My_Object_Table[] = {
         Analog_Input_Change_Of_Value_Clear, Analog_Input_Intrinsic_Reporting, NULL /* Add_List_Element */,
         NULL /* Remove_List_Element */, NULL /* Create */, NULL /* Delete */,
         NULL /* Timer */ },
+    { OBJECT_ANALOG_OUTPUT, Analog_Output_Init, Analog_Output_Count,
+        Analog_Output_Index_To_Instance, Analog_Output_Valid_Instance,
+        Analog_Output_Object_Name, Analog_Output_Read_Property,
+        Analog_Output_Write_Property, Analog_Output_Property_Lists,
+        NULL /* ReadRangeInfo */, NULL /* Iterator */,
+        Analog_Output_Encode_Value_List, Analog_Output_Change_Of_Value,
+        Analog_Output_Change_Of_Value_Clear, NULL /* Intrinsic Reporting */, NULL /* Add_List_Element */,
+        NULL /* Remove_List_Element */, NULL /* Create */, NULL /* Delete */,
+        NULL /* Timer */ },
     { OBJECT_FILE, bacfile_init, (unsigned (*)())bacfile_count, bacfile_index_to_instance,
         bacfile_valid_instance, bacfile_object_name, bacfile_read_property,
         bacfile_write_property, BACfile_Property_Lists,
@@ -83,9 +92,21 @@ static object_functions_t My_Object_Table[] = {
 };
 
 void binary_output_callback(
-    uint32_t object_instance, BACNET_BINARY_PV old_value,
+    uint32_t object_instance,
+    BACNET_BINARY_PV old_value,
     BACNET_BINARY_PV value)
 {
+    unsigned index = Binary_Output_Instance_To_Index(object_instance);
+    Binary_Input_Present_Value_Set(index, value);
+}
+
+void analog_output_callback(
+    uint32_t object_instance,
+    float old_value,
+    float value)
+{
+    unsigned index = Analog_Output_Instance_To_Index(object_instance);
+    Analog_Input_Present_Value_Set(index, value);
 }
 
 void bacnet_init(const char* ifname)
@@ -103,6 +124,10 @@ void bacnet_init(const char* ifname)
         Binary_Output_Create(i);
     }
     Binary_Output_Write_Present_Value_Callback_Set(binary_output_callback);
+    for (i = 0; i < MAX_ANALOG_OUTPUTS; i++) {
+        Analog_Output_Create(i);
+    }
+    Analog_Output_Write_Present_Value_Callback_Set(analog_output_callback);
 
     /* set up our confirmed service unrecognized service handler - required! */
     apdu_set_unrecognized_service_handler_handler(handler_unrecognized_service);
@@ -149,7 +174,6 @@ void bacnet_task(void)
 {
     uint16_t pdu_len;
     BACNET_ADDRESS src; /* source address */
-    uint8_t i;
     uint32_t elapsed_milliseconds = 0;
 
     /* handle the communication timer */

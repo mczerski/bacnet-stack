@@ -34,34 +34,33 @@ void setup(const char* ifname)
     mstimer_init();
     bacnet_init(ifname);
 
-    Analog_Input_COV_Increment_Set(0, 0.01);
-    Analog_Input_COV_Increment_Set(1, 1);
-    Analog_Input_COV_Increment_Set(2, 0.1);
+    Analog_Input_COV_Increment_Set(0, 0.1);
+    Analog_Input_COV_Increment_Set(1, 0.01);
+    Analog_Input_COV_Increment_Set(2, 1);
+    Analog_Input_COV_Increment_Set(3, 0.1);
 
-    Analog_Input_Present_Value_Set(0, rand_ain0());
-    Analog_Input_Present_Value_Set(1, rand_ain1());
-    Analog_Input_Present_Value_Set(2, rand_ain2());
-    Binary_Input_Present_Value_Set(0, rand_bin0());
-    Binary_Input_Present_Value_Set(1, rand_bin1());
+    Analog_Input_Present_Value_Set(0, 0);
+    Analog_Input_Present_Value_Set(1, rand_ain0());
+    Analog_Input_Present_Value_Set(2, rand_ain1());
+    Analog_Input_Present_Value_Set(3, rand_ain2());
 }
 
 int main(int argc, const char* argv[])
 {
     size_t loopc = 0;
+    if (argc != 2) {
+        return -1;
+    }
     setup(argv[1]);
     for (;;) {
         bacnet_task();
         usleep(10000);
         loopc++;
         if (loopc % 500 == 0)
-            Analog_Input_Present_Value_Set(0, rand_ain0());
+            Analog_Input_Present_Value_Set(1, rand_ain0());
         if (loopc % 600 == 0)
-            Analog_Input_Present_Value_Set(1, rand_ain1());
+            Analog_Input_Present_Value_Set(2, rand_ain1());
         if (loopc % 1000 == 0)
-            Analog_Input_Present_Value_Set(2, rand_ain2());
-        if (loopc % 750 == 0)
-            Binary_Input_Present_Value_Set(0, rand_bin0());
-        if (loopc % 750 == 0)
-            Binary_Input_Present_Value_Set(1, rand_bin1());
+            Analog_Input_Present_Value_Set(3, rand_ain2());
     }
 }

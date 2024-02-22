@@ -7,10 +7,16 @@ BACNET_OBJECT_DIR = $(BACNET_SRC_DIR)/bacnet/basic/object
 SRC = main.c bacnet.c device.c \
 	$(BACNET_OBJECT_DIR)/bacfile.c \
 	$(BACNET_OBJECT_DIR)/ai.c \
+	$(BACNET_OBJECT_DIR)/ao.c \
 	$(BACNET_OBJECT_DIR)/bi.c \
 	$(BACNET_OBJECT_DIR)/bo.c \
 	$(BACNET_OBJECT_DIR)/nc.c \
 	$(BACNET_OBJECT_DIR)/netport.c
+
+CFLAGS += -DMAX_BINARY_INPUTS=2
+CFLAGS += -DMAX_BINARY_OUTPUTS=2
+CFLAGS += -DMAX_ANALOG_INPUTS=4
+CFLAGS += -DMAX_ANALOG_OUTPUTS=1
 
 # TARGET_EXT is defined in apps/Makefile as .exe or nothing
 TARGET_BIN = ${TARGET}$(TARGET_EXT)
