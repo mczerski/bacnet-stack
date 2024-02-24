@@ -30,9 +30,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-    void bacnet_init(const char* ifname);
-    void bacnet_task(
-        void);
+    void bacnet_init(uint32_t object_id);
+    void bacnet_task(void);
 
 #ifdef __cplusplus
 }

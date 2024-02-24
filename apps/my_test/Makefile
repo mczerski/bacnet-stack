@@ -15,7 +15,7 @@ SRC = main.c bacnet.c device.c \
 
 CFLAGS += -DMAX_BINARY_INPUTS=2
 CFLAGS += -DMAX_BINARY_OUTPUTS=2
-CFLAGS += -DMAX_ANALOG_INPUTS=4
+CFLAGS += -DMAX_ANALOG_INPUTS=3
 CFLAGS += -DMAX_ANALOG_OUTPUTS=1
 
 # TARGET_EXT is defined in apps/Makefile as .exe or nothing

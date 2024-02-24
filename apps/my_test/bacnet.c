@@ -12,6 +12,7 @@
 #include "bacnet/basic/tsm/tsm.h"
 #include "bacnet/dcc.h"
 #include "bacnet/iam.h"
+#include "bacnet/datalink/dlenv.h"
 /* BACnet objects */
 #include "bacnet/basic/object/device.h"
 #include "bacnet/basic/object/bi.h"
@@ -105,18 +106,13 @@ void analog_output_callback(
     float old_value,
     float value)
 {
-    unsigned index = Analog_Output_Instance_To_Index(object_instance);
-    Analog_Input_Present_Value_Set(index, value);
 }
 
-void bacnet_init(const char* ifname)
+void bacnet_init(uint32_t object_id)
 {
     int i = 0;
-    dlmstp_set_mac_address(1);
-    dlmstp_set_max_master(3);
-    dlmstp_set_max_info_frames(1);
-    /* initialize datalink layer */
-    dlmstp_init(ifname);
+    dlenv_init();
+    Device_Set_Object_Instance_Number(260000 + object_id);
     handler_cov_init();
     /* initialize objects */
     Device_Init(My_Object_Table);
