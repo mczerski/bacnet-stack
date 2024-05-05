@@ -43,6 +43,8 @@ void setup(uint32_t object_id)
     Analog_Input_Present_Value_Set(2, rand_ain2());
 }
 
+size_t changes = 0;
+
 int main(int argc, const char* argv[])
 {
     size_t loopc = 0;
@@ -54,11 +56,29 @@ int main(int argc, const char* argv[])
         bacnet_task();
         usleep(10000);
         loopc++;
-        if (loopc % 500 == 0)
-            Analog_Input_Present_Value_Set(0, rand_ain0());
-        if (loopc % 600 == 0)
+        if (loopc % 500 == 0) {
+	    float value = rand_ain0();
+            Analog_Input_Present_Value_Set(0, value);
+	    if (Analog_Input_Change_Of_Value(0)) {
+		changes++;
+                fprintf(stderr, "AI(0) changed: %f\n", value);
+	    }
+	}
+        if (loopc % 600 == 0) {
+	    float value = rand_ain1();
             Analog_Input_Present_Value_Set(1, rand_ain1());
-        if (loopc % 1000 == 0)
+	    if (Analog_Input_Change_Of_Value(1)) {
+		changes++;
+                fprintf(stderr, "AI(1) changed: %f\n", value);
+	    }
+	}
+        if (loopc % 1000 == 0) {
+	    float value = rand_ain2();
             Analog_Input_Present_Value_Set(2, rand_ain2());
+	    if (Analog_Input_Change_Of_Value(2)) {
+		changes++;
+                fprintf(stderr, "AI(2) changed: %f\n", value);
+	    }
+	}
     }
 }

@@ -537,7 +537,7 @@ static bool dlmstp_compare_data_expecting_reply(uint8_t *request_pdu,
 #if PRINT_ENABLED
             fprintf(stderr,
                 "DLMSTP: DER Compare failed: "
-                "Invoke ID mismatch.\n");
+                "Invoke ID mismatch. %d/%d\n", request.invoke_id, reply.invoke_id);
 #endif
             return false;
         }

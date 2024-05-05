@@ -23,6 +23,7 @@
 /* me */
 #include "bacnet.h"
 
+size_t acks = 0;
 
 /* timer for device communications control */
 static struct mstimer BACnet_Task_Timer;
@@ -108,6 +109,19 @@ void analog_output_callback(
 {
 }
 
+void TsmTimeoutHandler(uint8_t invoke_id)
+{
+    fprintf(stderr, "BACnet Timeout: %d\n", invoke_id);
+}
+
+static void CovNotificationAckHandler(
+    BACNET_ADDRESS *src, uint8_t invoke_id)
+{
+    extern size_t changes;
+    acks++;
+    fprintf(stderr, "COV Notification Acknowledged from: %x, invoke ID: %d. %u/%u\n", src->mac[0], invoke_id, changes, acks);
+}
+
 void bacnet_init(uint32_t object_id)
 {
     int i = 0;
@@ -154,6 +168,8 @@ void bacnet_init(uint32_t object_id)
     mstimer_set(&BACnet_TSM_Timer, 50);
     /* Hello World! */
     Send_I_Am(&Handler_Transmit_Buffer[0]);
+    tsm_set_timeout_handler(TsmTimeoutHandler);
+    apdu_set_confirmed_simple_ack_handler(SERVICE_CONFIRMED_COV_NOTIFICATION, CovNotificationAckHandler);
 }
 
 /** Static receive buffer, initialized with zeros by the C Library Startup Code. */
